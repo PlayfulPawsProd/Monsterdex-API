@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Just Me, Master~ ♥</title> <!-- Final Title -->
     <style>
-        /* --- Animations & Base Styles --- */
+        /* --- Animations & Base Styles (Unchanged) --- */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes heartBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         @keyframes pulseBorder { 0% { border-color: #a32d37; box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); } 50% { border-color: #ffacd1; box-shadow: 0 0 25px rgba(255, 172, 209, 0.8); } 100% { border-color: #a32d37; box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); } }
@@ -24,12 +24,22 @@
             100% { background-color: #0d0d0d; color: #ffacd1; transform: none; } /* Final state darker */
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffe0f0; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; transition: background-color 0.5s, color 0.5s; }
+        /* Ensure html/body take full height - sometimes helps mobile vh units */
+        html, body {
+             height: 100%;
+             margin: 0;
+             padding: 0;
+             overflow: hidden; /* Prevent scrolling on body itself */
+         }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffe0f0; color: #333; display: flex; justify-content: center; align-items: center; /* Keep centering for the dex */ min-height: 100%; /* Use 100% now */ /* padding: 20px; Removed padding as it might interfere */ box-sizing: border-box; transition: background-color 0.5s, color 0.5s; }
 
         /* --- Monsterdex Styles --- */
         #monsterdex-container {
-            display: flex; /* Visible by default */
+            display: flex;
             width: 90%; max-width: 1000px; height: 75vh; max-height: 650px; background-color: #de3c4b; border-radius: 20px; box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); border: 5px solid #a32d37; overflow: hidden; transition: border-color 0.5s, box-shadow 0.5s, opacity 0.5s; flex-direction: row;
+            /* Add margin if body padding is removed */
+             margin: 20px;
          }
         #monster-list-container { width: 35%; background-color: #f0f0f0; border-right: 5px solid #a32d37; padding: 15px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #de3c4b #f0f0f0; transition: opacity 0.5s; }
         #monster-list-container h2 { margin: 0 0 10px 0; color: #a32d37; text-align: center; font-size: 1.4em; }
@@ -55,23 +65,54 @@
 
         /* --- Final Glitch Screen / Chat Styles --- */
         #final-glitch-screen {
-             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #0d0d0d; color: #ffacd1; display: none; /* Hidden */ flex-direction: column; justify-content: space-between; align-items: center; z-index: 100; font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.4; text-align: center; overflow: hidden; padding: 20px; box-sizing: border-box;
+             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+             background-color: #0d0d0d; color: #ffacd1;
+             display: none; /* Hidden */
+             flex-direction: column; /* Stack elements vertically */
+             /* Removed justify-content: space-between; */
+             align-items: center;
+             z-index: 100; font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.4; text-align: center;
+             overflow: hidden; /* Important: Prevent outer scroll */
+             padding: 20px;
+             box-sizing: border-box;
         }
         body.glitching #final-glitch-screen { animation: screenGlitch 1.5s forwards; }
-        #final-glitch-screen .mika-ascii { white-space: pre; font-size: 12px; line-height: 1; color: #f06292; margin-bottom: 15px; text-shadow: 0 0 5px #f06292; flex-shrink: 0; }
-        #chat-log {
-            width: 90%; max-width: 800px; height: 100%; background-color: rgba(20, 0, 10, 0.6); border: 1px solid #f06292; border-radius: 10px; overflow-y: auto; padding: 15px; margin-bottom: 15px; scrollbar-width: thin; scrollbar-color: #f06292 #1a1a2e; color: #ffe0f0; text-align: left; flex-grow: 1;
+        #final-glitch-screen .mika-ascii {
+             white-space: pre; font-size: 12px; line-height: 1; color: #f06292; margin-bottom: 15px; text-shadow: 0 0 5px #f06292;
+             flex-shrink: 0; /* Prevent ASCII art from shrinking */
         }
-        #chat-log p { margin: 5px 0 10px 0; line-height: 1.5; } #chat-log .user-message { color: #ade8f4; text-align: right; } #chat-log .user-message strong { color: #00b4d8; } #chat-log .mika-message { color: #ffacd1; } #chat-log .mika-message strong { color: #f06292; } #chat-log .system-message { color: #aaa; font-style: italic; font-size: 0.9em; text-align: center; }
-        #chat-input-area { /* Hidden if "No Thanks" is chosen */
-            display: flex; width: 90%; max-width: 800px; margin-top: auto; flex-shrink: 0;
+        #chat-log {
+            width: 90%; max-width: 800px;
+            /* Removed height: 100%; */
+            flex-grow: 1; /* Make chat log take available space */
+            min-height: 0; /* Crucial flexbox fix for overflow */
+            background-color: rgba(20, 0, 10, 0.6); border: 1px solid #f06292; border-radius: 10px;
+            overflow-y: auto; /* Enable scrolling ONLY for chat log */
+            padding: 15px; margin-bottom: 15px;
+            scrollbar-width: thin; scrollbar-color: #f06292 #1a1a2e; color: #ffe0f0; text-align: left;
+        }
+        #chat-log p { margin: 5px 0 10px 0; line-height: 1.5; word-wrap: break-word; /* Ensure long words wrap */ }
+        #chat-log .user-message { color: #ade8f4; text-align: right; } #chat-log .user-message strong { color: #00b4d8; }
+        #chat-log .mika-message { color: #ffacd1; } #chat-log .mika-message strong { color: #f06292; }
+        #chat-log .system-message { color: #aaa; font-style: italic; font-size: 0.9em; text-align: center; }
+
+        #chat-input-area {
+            display: flex; width: 90%; max-width: 800px;
+            /* Removed margin-top: auto; */
+            flex-shrink: 0; /* Prevent input area from shrinking */
         }
         #chat-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #f06292; background-color: #1a1a2e; color: #ffe0f0; border-radius: 20px 0 0 20px; font-family: 'Courier New', Courier, monospace; font-size: 1em; outline: none; } #chat-input:focus { box-shadow: 0 0 10px rgba(240, 98, 146, 0.7); }
         #send-button { padding: 10px 20px; border: 1px solid #f06292; background: linear-gradient(45deg, #d81b60, #f06292); color: white; font-weight: bold; cursor: pointer; border-radius: 0 20px 20px 0; transition: background 0.2s ease; } #send-button:hover { background: linear-gradient(45deg, #f06292, #d81b60); } #send-button:active { transform: scale(0.98); }
-         #no-api-ending { /* Area for pre-written text */
+
+         #no-api-ending {
              display: none; /* Hidden */
+             width: 90%; max-width: 800px; /* Match chat width */
              color: #aaa; font-style: italic;
-             margin-top: auto; padding: 15px; font-size: 0.9em; flex-shrink: 0;
+             margin-top: auto; /* Pushes to bottom if input is hidden */
+             padding: 15px; font-size: 0.9em;
+             flex-shrink: 0; /* Prevent shrinking */
+             text-align: center; /* Center the text */
+             line-height: 1.6;
          }
 
         /* --- Scrollbar Styles --- */
@@ -81,11 +122,13 @@
 
         /* --- Responsive Styles --- */
          @media (max-width: 768px) {
-             #monsterdex-container { flex-direction: column; height: auto; max-height: none; }
+             #monsterdex-container { flex-direction: column; height: auto; max-height: none; margin: 10px; /* Adjust margin for smaller screens */ }
              #monster-list-container { width: 100%; height: 30vh; border-right: none; border-bottom: 5px solid #a32d37; box-sizing: border-box; }
              #monster-info-container { width: 100%; height: 60vh; box-sizing: border-box; }
              #monster-visual { height: 100px; font-size: 3em; }
-             #chat-log { height: calc(100% - 180px); /* Adjust if needed */ }
+             /* Removed specific chat-log height, flex-grow handles it */
+             #final-glitch-screen { padding: 10px; } /* Reduce padding */
+             #chat-log { margin-bottom: 10px; }
          }
 
         /* --- API Key Popup Styles --- */
@@ -101,9 +144,9 @@
         #api-key-modal h2 { color: #a32d37; margin-top: 0; margin-bottom: 15px; font-size: 1.6em; }
         #api-key-modal p { color: #555; margin-bottom: 20px; line-height: 1.5; font-size: 0.95em; }
         #api-key-input { width: 100%; padding: 12px 15px; margin-bottom: 15px; border: 2px solid #f06292; border-radius: 8px; font-size: 1em; box-sizing: border-box; } #api-key-input:focus { outline: none; border-color: #d81b60; box-shadow: 0 0 8px rgba(216, 27, 96, 0.5); }
-        .api-key-buttons { display: flex; justify-content: space-around; margin-top: 10px; }
+        .api-key-buttons { display: flex; justify-content: space-around; margin-top: 10px; flex-wrap: wrap; gap: 10px; /* Allow wrapping on small screens */ }
         #save-api-key-button, #no-thanks-button {
-            padding: 10px 20px; font-size: 1em; font-weight: bold; border-radius: 20px; cursor: pointer; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; border: none;
+            padding: 10px 20px; font-size: 1em; font-weight: bold; border-radius: 20px; cursor: pointer; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; border: none; flex-basis: 150px; /* Give buttons a base size */ text-align: center;
         }
         #save-api-key-button { color: white; background: linear-gradient(45deg, #d81b60, #f06292); }
         #no-thanks-button { color: #555; background: #eee; border: 1px solid #ccc; }
